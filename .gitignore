@@ -1,0 +1,45 @@
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+target/
+build/
+
+# Spring Boot
+spring-boot-devtools.jar
+spring-boot-loader/
+
+# Logs
+*.log
+*.log.*
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Maven
+.mvn/
+target/
+*.war
+
+# Gradle
+.gradle/
+build/
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# JRebel
+.jrebel/
+
+# Java Hints
+hs_err_pid*
