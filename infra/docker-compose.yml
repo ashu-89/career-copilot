@@ -1,0 +1,119 @@
+services:
+  # PostgreSQL Service
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: career_db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - career-net
+
+  # TimescaleDB Service (Built on Postgres)
+  timescaledb:
+    image: timescale/timescaledb:latest-pg13
+    container_name: timescaledb
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: career_timescale_db
+    volumes:
+      - timescaledb-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - career-net
+
+  # MongoDB Service
+  mongodb:
+    image: mongo:4.4
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+      MONGO_INITDB_DATABASE: career_db
+    volumes:
+      - mongodb-data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - career-net
+
+  # Redis Service
+  redis:
+    image: redis:6
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - career-net
+
+  # Kafka Service (in KRaft Mode)
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    environment:
+      KAFKA_LISTENER_SECURITY_PROTOCOL: PLAINTEXT
+      KAFKA_LISTENER_NAME: INSIDE_KAFKA
+      KAFKA_LISTENER_PORT: 9093
+      KAFKA_LISTENER_INTER_BROKER_PROTOCOL: PLAINTEXT
+      KAFKA_ADVERTISED_LISTENER: INSIDE_KAFKA:9093
+      KAFKA_LISTENER_TLS_PORT: 9094
+      KAFKA_KRAFT_MODE: "true"  # Enabling KRaft Mode (No Zookeeper)
+      KAFKA_ZOOKEEPER_CONNECT: none  # Kafka will no longer connect to Zookeeper
+    ports:
+      - "9093:9093"
+    networks:
+      - career-net
+
+  # Keycloak Service (Authentication)
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+    ports:
+      - "8080:8080"
+    networks:
+      - career-net
+    command: start-dev  # This ensures Keycloak starts the server in development mode
+
+  # API Gateway (Place for routing)
+  api-gateway:
+    image: kong:latest
+    container_name: api-gateway
+    environment:
+      KONG_DATABASE: "off"
+      KONG_PORT_MAP: 8080
+      KONG_PROXY_LISTENER: 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    networks:
+      - career-net
+
+  # Discovery Service
+  discovery-service:
+    build:
+      context: ../discovery-service  # Path to the directory containing Dockerfile
+    image: co.apna/discovery-service:0.0.1-SNAPSHOT  # Name and tag for the built image
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+    networks:
+      - career-net
+
+
+volumes:
+  postgres-data:
+  timescaledb-data:
+  mongodb-data:
+
+networks:
+  career-net:
+    driver: bridge
