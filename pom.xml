@@ -33,6 +33,7 @@
 
 	<modules>
 		<module>discovery-service</module>
+		<module>path-service</module>
 	</modules>
 
 
