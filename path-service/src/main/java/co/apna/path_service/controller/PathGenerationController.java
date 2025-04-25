@@ -1,5 +1,7 @@
 package co.apna.path_service.controller;
 
+import co.apna.path_service.dto.GeneratePathResponseDTO;
+import co.apna.path_service.dto.Goal;
 import co.apna.path_service.service.PathGenerationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +22,7 @@ public class PathGenerationController {
     }
 
     @PostMapping("/generate")
-    public String generate(@RequestParam String goal) {
+    public GeneratePathResponseDTO generate(@RequestBody Goal goal) {
         return pathGenerationService.generateLearningPath(goal);
     }
 }
